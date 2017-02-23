@@ -44,55 +44,62 @@ namespace SendDanmaku
 
         private void input_KeyUp(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Enter)
+            try
             {
-                string text = input.Text;
-                input.Text = string.Empty;
-                history = 0;
-                add2List(text);
-                string result = null;
-                try
+                if(e.Key == Key.Enter)
                 {
-                    if(SendDanmakuMain.self.RoomId.HasValue)
+                    string text = input.Text;
+                    input.Text = string.Empty;
+                    history = 0;
+                    add2List(text);
+                    string result = null;
+                    try
                     {
-                        result = SendDanmakuMain.api.send(SendDanmakuMain.self.RoomId.Value, text);
+                        if(SendDanmakuMain.self.RoomId.HasValue)
+                        {
+                            result = SendDanmakuMain.api.send(SendDanmakuMain.self.RoomId.Value, text);
+                        }
+                        else
+                        {
+                            SendDanmakuMain.log("还未连接直播间！");
+                            return;
+                        }
                     }
-                    else
+                    catch(PluginNotAuthorizedException)
                     {
-                        SendDanmakuMain.log("还未连接直播间！");
+                        SendDanmakuMain.log("插件未被授权使用B站账号");
                         return;
                     }
+                    var j = JObject.Parse(result);
+                    if(j["msg"].ToString() != string.Empty)
+                    {
+                        SendDanmakuMain.log("服务器返回：" + j["msg"].ToString());
+                    }
                 }
-                catch(PluginNotAuthorizedException)
-                {
-                    SendDanmakuMain.log("插件未被授权使用B站账号");
-                    return;
-                }
-                var j = JObject.Parse(result);
-                if(j["msg"].ToString() != string.Empty)
-                {
-                    SendDanmakuMain.log("服务器返回：" + j["msg"].ToString());
-                }
-            }
-            else if(e.Key == Key.Up)
-            {// 翻更老的一条记录
-                history += 1;
-                if(history > list.Count)
-                    history = list.Count;
-                input.Text = list[list.Count - history];
-            }
-            else if(e.Key == Key.Down)
-            {
-                history -= 1;
-                if(history < 0)
-                    history = 0;
-                if(history == 0)
-                    input.Text = string.Empty;
-                else
+                else if(e.Key == Key.Up)
+                {// 翻更老的一条记录
+                    history += 1;
+                    if(history > list.Count)
+                        history = list.Count;
                     input.Text = list[list.Count - history];
+                }
+                else if(e.Key == Key.Down)
+                {
+                    history -= 1;
+                    if(history < 0)
+                        history = 0;
+                    if(history == 0)
+                        input.Text = string.Empty;
+                    else
+                        input.Text = list[list.Count - history];
+                }
+                else
+                { }// do nothing
             }
-            else
-            { }// do nothing
+            finally
+            {// 统计弹幕字数
+                text_count.Text = input.Text.Length.ToString();
+            }
         }
 
         // 0 的意思是当前正在打字的这个

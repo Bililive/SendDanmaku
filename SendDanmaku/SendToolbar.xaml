@@ -13,6 +13,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Border  Grid.Column="0" BorderBrush="{x:Null}" Height="Auto">
                 <TextBlock FontSize="18" VerticalAlignment="Center">发送弹幕：</TextBlock>
@@ -20,8 +21,13 @@
             <Border Grid.Column="1"  BorderBrush="{x:Null}" Height="Auto">
                 <TextBox Height="20" VerticalAlignment="Center" x:Name="input" KeyUp="input_KeyUp"></TextBox>
             </Border>
-            <Button Grid.Column="2" Margin="5 1" Width="70" Click="Button_Click">申请授权</Button>
-            <Border Grid.Column="3"  BorderBrush="{x:Null}" Height="Auto">
+            <Border Grid.Column="2"  BorderBrush="{x:Null}" Height="Auto" Margin="5 0">
+                <TextBlock VerticalAlignment="Center">
+                    ( <TextBlock x:Name="text_count">0</TextBlock> )
+                </TextBlock>
+            </Border>
+            <Button Grid.Column="3" Margin="5 1" Width="70" Click="Button_Click">申请授权</Button>
+            <Border Grid.Column="4"  BorderBrush="{x:Null}" Height="Auto">
                 <TextBlock FontSize="12" VerticalAlignment="Center">此功能由“弹幕发送”插件提供</TextBlock>
             </Border>
         </Grid>
