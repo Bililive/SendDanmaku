@@ -1,2 +1,2 @@
-Ò»¸öµ¯Ä»¼§²å¼ş
+ä¸€ä¸ªå¼¹å¹•å§¬æ’ä»¶
 https://www.danmuji.cn/plugins/SendDanmaku
