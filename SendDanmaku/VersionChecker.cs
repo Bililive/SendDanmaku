@@ -19,7 +19,7 @@ namespace SendDanmaku
             {
                 try
                 {
-                    var versionChecker = new VersionChecker("LoginCenter");
+                    var versionChecker = new VersionChecker("SendDanmaku");
                     if(versionChecker.FetchInfo())
                     {
                         if(versionChecker.hasNewVersion(plugin.PluginVer))
