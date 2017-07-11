@@ -21,7 +21,7 @@ namespace SendDanmaku
         private async void Button_Click(object sender, RoutedEventArgs e)
         {// 打开设置窗
             var result = await SendDanmakuMain.api.doAuth(SendDanmakuMain.self);
-            switch(result)
+            switch (result)
             {
                 case AuthorizationResult.Success:
                     SendDanmakuMain.log("插件已经被允许使用B站账号！");
@@ -46,7 +46,7 @@ namespace SendDanmaku
         {
             try
             {
-                if(e.Key == Key.Enter)
+                if (e.Key == Key.Enter)
                 {
                     string text = input.Text;
                     input.Text = string.Empty;
@@ -55,9 +55,11 @@ namespace SendDanmaku
                     string result = null;
                     try
                     {
-                        if(SendDanmakuMain.self.RoomId.HasValue)
+                        if (SendDanmakuMain.self.RoomId.HasValue)
                         {
-                            result = SendDanmakuMain.api.send(SendDanmakuMain.self.RoomId.Value, text);
+                            var task = SendDanmakuMain.api.send(SendDanmakuMain.self.RoomId.Value, text);
+                            task.Wait();
+                            result = task.Result;
                         }
                         else
                         {
@@ -65,30 +67,30 @@ namespace SendDanmaku
                             return;
                         }
                     }
-                    catch(PluginNotAuthorizedException)
+                    catch (PluginNotAuthorizedException)
                     {
                         SendDanmakuMain.log("插件未被授权使用B站账号");
                         return;
                     }
                     var j = JObject.Parse(result);
-                    if(j["msg"].ToString() != string.Empty)
+                    if (j["msg"].ToString() != string.Empty)
                     {
                         SendDanmakuMain.log("服务器返回：" + j["msg"].ToString());
                     }
                 }
-                else if(e.Key == Key.Up)
+                else if (e.Key == Key.Up)
                 {// 翻更老的一条记录
                     history += 1;
-                    if(history > list.Count)
+                    if (history > list.Count)
                         history = list.Count;
                     input.Text = list[list.Count - history];
                 }
-                else if(e.Key == Key.Down)
+                else if (e.Key == Key.Down)
                 {
                     history -= 1;
-                    if(history < 0)
+                    if (history < 0)
                         history = 0;
-                    if(history == 0)
+                    if (history == 0)
                         input.Text = string.Empty;
                     else
                         input.Text = list[list.Count - history];
@@ -116,7 +118,7 @@ namespace SendDanmaku
         private List<string> list = new List<string>();
         private void add2List(string text)
         {
-            while(list.Count >= 10)
+            while (list.Count >= 10)
                 list.RemoveAt(0);
             list.Add(text);
         }

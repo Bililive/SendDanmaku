@@ -1,4 +1,5 @@
 ﻿using LoginCenter.API;
+using System.Threading.Tasks;
 
 namespace SendDanmaku
 {
@@ -9,14 +10,14 @@ namespace SendDanmaku
             LoginCenterAPI.checkAuthorization();
         }
 
-        internal async System.Threading.Tasks.Task<AuthorizationResult> doAuth(BilibiliDM_PluginFramework.DMPlugin plugin)
+        internal async Task<AuthorizationResult> doAuth(BilibiliDM_PluginFramework.DMPlugin plugin)
         {
             return await LoginCenterAPI.doAuthorization(plugin);
         }
 
-        internal string send(int roomid, string msg, int color = 16777215, int mode = 1, int rnd = -1, int fontsize = 25)
+        internal async Task<string> send(int roomid, string msg, int color = 16777215, int mode = 1, int rnd = -1, int fontsize = 25)
         {
-            return LoginCenterAPI.trySendMessage(roomid, msg, color, mode, rnd, fontsize);
+            return await LoginCenterAPI.trySendMessage(roomid, msg, color, mode, rnd, fontsize);
         }
     }
 }
