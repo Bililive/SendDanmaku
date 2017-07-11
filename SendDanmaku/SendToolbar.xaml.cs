@@ -72,10 +72,17 @@ namespace SendDanmaku
                         SendDanmakuMain.log("插件未被授权使用B站账号");
                         return;
                     }
-                    var j = JObject.Parse(result);
-                    if (j["msg"].ToString() != string.Empty)
+                    if (result == null)
                     {
-                        SendDanmakuMain.log("服务器返回：" + j["msg"].ToString());
+                        SendDanmakuMain.log("网络错误，请重试");
+                    }
+                    else
+                    {
+                        var j = JObject.Parse(result);
+                        if (j["msg"].ToString() != string.Empty)
+                        {
+                            SendDanmakuMain.log("服务器返回：" + j["msg"].ToString());
+                        }
                     }
                 }
                 else if (e.Key == Key.Up)
