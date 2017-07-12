@@ -42,7 +42,7 @@ namespace SendDanmaku
             }
         }
 
-        private void input_KeyUp(object sender, KeyEventArgs e)
+        private async void input_KeyUp(object sender, KeyEventArgs e)
         {
             try
             {
@@ -57,9 +57,7 @@ namespace SendDanmaku
                     {
                         if (SendDanmakuMain.self.RoomId.HasValue)
                         {
-                            var task = SendDanmakuMain.api.send(SendDanmakuMain.self.RoomId.Value, text);
-                            task.Wait();
-                            result = task.Result;
+                            result = await SendDanmakuMain.api.send(SendDanmakuMain.self.RoomId.Value, text);
                         }
                         else
                         {
