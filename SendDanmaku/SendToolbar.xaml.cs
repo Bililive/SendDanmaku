@@ -42,13 +42,53 @@ namespace SendDanmaku
             }
         }
 
-        private async void input_KeyUp(object sender, KeyEventArgs e)
+        private void input_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Up)
+            {// 翻更老的一条记录
+                history += 1;
+                if (history > list.Count)
+                    history = list.Count;
+                input.Text = list[list.Count - history];
+            }
+            else if (e.Key == Key.Down)
+            {
+                history -= 1;
+                if (history < 0)
+                    history = 0;
+                if (history == 0)
+                    input.Text = string.Empty;
+                else
+                    input.Text = list[list.Count - history];
+            }
+        }
+
+        // 0 的意思是当前正在打字的这个
+        // 1 的意思是刚刚发出去的
+        // 2 的意思是刚发出去的前一个
+
+        // list数组序号：     0  1  2  3  4  5  6  7
+        // 发送弹幕顺序： 老  1  2  3  4  5  6  7  8      新
+        // hist变量内容：     8  7  6  5  4  3  2  1  0
+
+        //                  list[list.Count - history]
+
+        private int history = 0;
+        private List<string> list = new List<string>();
+        private void add2List(string text)
+        {
+            while (list.Count >= 10)
+                list.RemoveAt(0);
+            list.Add(text);
+        }
+
+        private async void input_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
-                if (e.Key == Key.Enter)
+                if (input.Text.Contains("\n"))
                 {
-                    string text = input.Text;
+                    string text = input.Text.Replace("\r", string.Empty).Replace("\n", string.Empty);
                     input.Text = string.Empty;
                     history = 0;
                     add2List(text);
@@ -83,50 +123,11 @@ namespace SendDanmaku
                         }
                     }
                 }
-                else if (e.Key == Key.Up)
-                {// 翻更老的一条记录
-                    history += 1;
-                    if (history > list.Count)
-                        history = list.Count;
-                    input.Text = list[list.Count - history];
-                }
-                else if (e.Key == Key.Down)
-                {
-                    history -= 1;
-                    if (history < 0)
-                        history = 0;
-                    if (history == 0)
-                        input.Text = string.Empty;
-                    else
-                        input.Text = list[list.Count - history];
-                }
-                else
-                { }// do nothing
             }
             finally
             {// 统计弹幕字数
                 text_count.Text = input.Text.Length.ToString();
             }
         }
-
-        // 0 的意思是当前正在打字的这个
-        // 1 的意思是刚刚发出去的
-        // 2 的意思是刚发出去的前一个
-
-        // list数组序号：     0  1  2  3  4  5  6  7
-        // 发送弹幕顺序： 老  1  2  3  4  5  6  7  8      新
-        // hist变量内容：     8  7  6  5  4  3  2  1  0
-
-        //                  list[list.Count - history]
-
-        private int history = 0;
-        private List<string> list = new List<string>();
-        private void add2List(string text)
-        {
-            while (list.Count >= 10)
-                list.RemoveAt(0);
-            list.Add(text);
-        }
-
     }
 }

@@ -13,11 +13,9 @@ namespace SendDanmaku
         internal static SafeAPI api = null;
         internal static SendToolbar bar;
 
-        private const string decompiler = "B站弹幕姬/B站直播/弹幕姬插件开发讨论/吹逼(不欢迎无意义吹逼) 欢迎加群 553934452";
-
         public SendDanmakuMain()
         {
-            if(self == null)
+            if (self == null)
                 self = this;
             else
                 throw new InvalidOperationException();
@@ -37,7 +35,7 @@ namespace SendDanmaku
             {
                 api = new SafeAPI();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log("需要安装“登录中心”才能使用");
                 return;

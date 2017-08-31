@@ -19,7 +19,7 @@
                 <TextBlock FontSize="18" VerticalAlignment="Center">发送弹幕：</TextBlock>
             </Border>
             <Border Grid.Column="1"  BorderBrush="{x:Null}" Height="Auto">
-                <TextBox Height="20" VerticalAlignment="Center" x:Name="input" KeyUp="input_KeyUp"></TextBox>
+                <TextBox Height="20" VerticalAlignment="Center" x:Name="input" AcceptsReturn="True" TextChanged="input_TextChanged" KeyUp="input_KeyUp"></TextBox>
             </Border>
             <Border Grid.Column="2"  BorderBrush="{x:Null}" Height="Auto" Margin="5 0">
                 <TextBlock VerticalAlignment="Center">
