@@ -1,6 +1,12 @@
 ﻿using LoginCenter.API;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -97,7 +103,9 @@ namespace SendDanmaku
                     {
                         if (SendDanmakuMain.self.RoomId.HasValue)
                         {
-                            result = await SendDanmakuMain.api.send(SendDanmakuMain.self.RoomId.Value, text);
+                            result = await SendDanmakuAsync(SendDanmakuMain.self.RoomId.Value, text, LoginCenterAPI.getCookies());
+                            //string.Join("; ", LoginCenterAPI.getCookies().GetCookies(new Uri("http://live.bilibili.com/")).OfType<Cookie>().Select(p => $"{p.Name}={p.Value}"))
+                            //result = await SendDanmakuMain.api.send(SendDanmakuMain.self.RoomId.Value, text);
                         }
                         else
                         {
@@ -128,6 +136,95 @@ namespace SendDanmaku
             {// 统计弹幕字数
                 text_count.Text = input.Text.Length.ToString();
             }
+        }
+
+        /// <summary>
+        /// 异步发送弹幕
+        /// </summary>
+        /// <exception cref="ArgumentException"/>
+        /// <exception cref="ArgumentNullException"/>
+        /// <exception cref="ArgumentOutOfRangeException"/>
+        /// <exception cref="InvalidOperationException"/>
+        /// <exception cref="NotImplementedException"/>
+        /// <exception cref="UnauthorizedAccessException"/>
+        /// <param name="roomId">原房间号</param>
+        /// <param name="danmaku">弹幕</param>
+        /// <param name="cookie">发送账号的Cookie</param>
+        /// <param name="color">弹幕颜色</param>
+        public static async Task<string> SendDanmakuAsync(int roomId, string danmaku, CookieContainer cookie, int color = 16777215)
+        {
+            //IDictionary<string, string> Headers = new Dictionary<string, string>
+            //{
+            //    { "Origin", "https://live.bilibili.com" },
+            //    { "Referer", $"https://live.bilibili.com/{GetShortRoomId(roomId)}" }
+            //};
+            int UnixTimeStamp = (int)((DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000000);
+            while (true)
+            {
+                IDictionary<string, object> Postdata = new Dictionary<string, object>
+                {
+                    { "color", color },
+                    { "fontsize", 25 },
+                    { "mode", 1 },
+                    { "msg", WebUtility.UrlEncode(danmaku) },
+                    { "rnd", UnixTimeStamp },
+                    { "roomid", roomId },
+                    { "csrf_token", cookie.GetCookies(new Uri("http://live.bilibili.com/")).OfType<Cookie>().FirstOrDefault(p => p.Name == "bili_jct")?.Value }
+                };
+                try
+                {
+                    return await HttpPostAsync("https://api.live.bilibili.com/msg/send", Postdata, 15, cookie: cookie/*, headers: Headers*/); ;
+                }
+                catch 
+                {
+                    return null;
+                }
+            }
+        }
+        public static async Task<string> HttpPostAsync(string url, string formdata, int timeout = 0, string userAgent = null, CookieContainer cookie = null, IDictionary<string, string> headers = null)
+        {
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            request.Accept = "*/*";
+            request.Method = "POST";
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.UserAgent = userAgent ?? $"SendDanmaku/{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}";
+            if (timeout != 0) { request.Timeout = timeout * 1000; request.ReadWriteTimeout = timeout * 1000; }
+            else request.ReadWriteTimeout = 10000;
+            request.CookieContainer = cookie;
+            if (headers != null)
+            {
+                foreach (string key in headers.Keys)
+                {
+                    if (key.ToLower() == "accept")
+                        request.Accept = headers[key];
+                    else if (key.ToLower() == "host")
+                        request.Host = headers[key];
+                    else if (key.ToLower() == "referer")
+                        request.Referer = headers[key];
+                    else if (key.ToLower() == "content-type")
+                        request.ContentType = headers[key];
+                    else
+                        request.Headers.Add(key, headers[key]);
+                }
+            }
+            if (!string.IsNullOrEmpty(formdata))
+            {
+                byte[] data = Encoding.UTF8.GetBytes(formdata);
+                using (Stream stream = await request.GetRequestStreamAsync())
+                {
+                    await stream.WriteAsync(data, 0, data.Length);
+                }
+            }
+            using (HttpWebResponse response = await request.GetResponseAsync() as HttpWebResponse)
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
+                return await reader.ReadToEndAsync();
+        }
+        public static async Task<string> HttpPostAsync(string url, IDictionary<string, object> parameters = null, int timeout = 0, string userAgent = null, CookieContainer cookie = null, IDictionary<string, string> headers = null)
+        {
+            string formdata = string.Join("&", parameters.Select(p => $"{p.Key}={p.Value}"));
+            return await HttpPostAsync(url, formdata, timeout, userAgent, cookie, headers);
         }
     }
 }
