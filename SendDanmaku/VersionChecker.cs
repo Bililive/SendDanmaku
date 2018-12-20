@@ -45,7 +45,7 @@ namespace SendDanmaku
         /// <summary>
         /// 默认服务器地址
         /// </summary>
-        public const string DEFAULT_BASE_URL = "http://www.danmuji.cn";
+        public const string DEFAULT_BASE_URL = "https://www.danmuji.org";
 
         /// <summary>
         /// API的路径
