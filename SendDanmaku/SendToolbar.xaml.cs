@@ -125,9 +125,10 @@ namespace SendDanmaku
                     else
                     {
                         var j = JObject.Parse(result);
-                        if (j["msg"].ToString() != string.Empty)
+                        string msg = (j["msg"] ?? j["message"]).ToString();
+                        if (msg != string.Empty)
                         {
-                            SendDanmakuMain.log("服务器返回：" + j["msg"].ToString());
+                            SendDanmakuMain.log("服务器返回：" + msg);
                         }
                     }
                 }
@@ -141,12 +142,6 @@ namespace SendDanmaku
         /// <summary>
         /// 异步发送弹幕
         /// </summary>
-        /// <exception cref="ArgumentException"/>
-        /// <exception cref="ArgumentNullException"/>
-        /// <exception cref="ArgumentOutOfRangeException"/>
-        /// <exception cref="InvalidOperationException"/>
-        /// <exception cref="NotImplementedException"/>
-        /// <exception cref="UnauthorizedAccessException"/>
         /// <param name="roomId">原房间号</param>
         /// <param name="danmaku">弹幕</param>
         /// <param name="cookie">发送账号的Cookie</param>
@@ -161,6 +156,7 @@ namespace SendDanmaku
             int UnixTimeStamp = (int)((DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000000);
             while (true)
             {
+                string csrf = cookie.GetCookies(new Uri("http://live.bilibili.com/")).OfType<Cookie>().FirstOrDefault(p => p.Name == "bili_jct")?.Value;
                 IDictionary<string, object> Postdata = new Dictionary<string, object>
                 {
                     { "color", color },
@@ -169,7 +165,8 @@ namespace SendDanmaku
                     { "msg", WebUtility.UrlEncode(danmaku) },
                     { "rnd", UnixTimeStamp },
                     { "roomid", roomId },
-                    { "csrf_token", cookie.GetCookies(new Uri("http://live.bilibili.com/")).OfType<Cookie>().FirstOrDefault(p => p.Name == "bili_jct")?.Value }
+                    { "csrf_token", csrf },
+                    { "csrf", csrf }
                 };
                 try
                 {
@@ -188,7 +185,7 @@ namespace SendDanmaku
             request.Method = "POST";
             request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
             request.ContentType = "application/x-www-form-urlencoded";
-            request.UserAgent = userAgent ?? $"SendDanmaku/{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}";
+            request.UserAgent = userAgent ?? $"SendDanmaku/{SendDanmakuMain.self.PluginVer}";
             if (timeout != 0) { request.Timeout = timeout * 1000; request.ReadWriteTimeout = timeout * 1000; }
             else request.ReadWriteTimeout = 10000;
             request.CookieContainer = cookie;
