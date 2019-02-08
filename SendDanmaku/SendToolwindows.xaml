@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SendDanmaku"
         mc:Ignorable="d"
-        Title="发送弹幕" Height="32" Width="512" AllowsTransparency="True" WindowStyle="None" Topmost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" WindowStartupLocation="CenterScreen" Closing="SendTool_Closing" Loaded="SendTool_Loaded">
+        Title="发送弹幕" Height="32" Width="512" AllowsTransparency="True" WindowStyle="None" Topmost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" WindowStartupLocation="CenterScreen" Closing="SendTool_Closing" Loaded="SendTool_Loaded" ShowInTaskbar="False">
     <Border Height="Auto" BorderBrush="Black" BorderThickness="1">
         <Grid Margin="2" x:Name="GridA">
             <Grid.ColumnDefinitions>

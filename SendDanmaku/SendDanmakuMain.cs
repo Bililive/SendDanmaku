@@ -11,7 +11,7 @@ namespace SendDanmaku
         internal static SendDanmakuMain self;
 
         internal static SafeAPI api = null;
-        //internal static SendToolbar bar;
+        internal static SendToolbar bar;
         internal static SendToolwindows Toolwindows;
 
         public SendDanmakuMain()
@@ -44,16 +44,27 @@ namespace SendDanmaku
             }
 
             hackGUI();
+            Start();
         }
 
         public override void Start()
         {
-            MessageBox.Show("此插件不需要启用就可以运行");
+            Toolwindows = new SendToolwindows();
+            Toolwindows.Show();
+            base.Start();
+
+        }
+
+        public override void Stop()
+        {
+            Toolwindows.Close();
+            base.Stop();
+
         }
 
         public override void Admin()
         {
-            MessageBox.Show("请在弹幕姬界面操作");
+            Toolwindows.Visibility = Visibility.Visible;
         }
 
         private void hackGUI()
@@ -70,18 +81,16 @@ namespace SendDanmaku
             grid.RowDefinitions.Add(c1);
             grid.RowDefinitions.Add(c2);
 
-            Toolwindows = new SendToolwindows();
-            Toolwindows.Show();
-            //bar = new SendToolbar();
-            //Grid.SetRow(bar, 1);
-            Grid.SetRow(Toolwindows, 1);
+            bar = new SendToolbar();
+            Grid.SetRow(bar, 1);
 
             tab.Content = grid;
-
             grid.Children.Add(log);
-            //var i = grid.Children.Add(Toolwindows);
+            var i = grid.Children.Add(bar);
 
         }
+
+        
 
         internal static void log(string text)
         {
