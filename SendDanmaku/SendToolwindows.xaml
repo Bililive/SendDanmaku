@@ -5,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SendDanmaku"
         mc:Ignorable="d"
+        MouseMove="Window_MouseMove"
+        Opacity="0.8"
         Title="发送弹幕" Height="32" Width="512" AllowsTransparency="True" WindowStyle="None" Topmost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" WindowStartupLocation="CenterScreen" Closing="SendTool_Closing" Loaded="SendTool_Loaded" ShowInTaskbar="False">
     <Border Height="Auto" BorderBrush="Black" BorderThickness="1">
         <Grid Margin="2" x:Name="GridA">
@@ -19,7 +21,7 @@
                 <TextBlock FontSize="18" VerticalAlignment="Center">发送弹幕：</TextBlock>
             </Border>
             <Border Grid.Column="1"  BorderBrush="{x:Null}" Height="Auto">
-                <TextBox Height="20" VerticalAlignment="Center" x:Name="input" AcceptsReturn="True" TextChanged="input_TextChanged" KeyUp="input_KeyUp" IsEnabled="False"></TextBox>
+                <TextBox Height="22" VerticalAlignment="Center" x:Name="input" AcceptsReturn="True" TextChanged="input_TextChanged" KeyUp="input_KeyUp" IsEnabled="False"></TextBox>
             </Border>
             <Border Grid.Column="2"  BorderBrush="{x:Null}" Height="Auto" Margin="5 0">
                 <TextBlock VerticalAlignment="Center">

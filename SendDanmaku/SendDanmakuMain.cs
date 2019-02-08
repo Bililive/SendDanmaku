@@ -3,6 +3,7 @@ using Bililive_dm;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace SendDanmaku
 {
@@ -13,6 +14,7 @@ namespace SendDanmaku
         internal static SafeAPI api = null;
         internal static SendToolbar bar;
         internal static SendToolwindows Toolwindows;
+        public Boolean Toolwindows_Visibility = false;
 
         public SendDanmakuMain()
         {
@@ -51,20 +53,28 @@ namespace SendDanmaku
         {
             Toolwindows = new SendToolwindows();
             Toolwindows.Show();
+            Toolwindows_Visibility = true;
             base.Start();
 
         }
 
         public override void Stop()
         {
+            Toolwindows_Visibility = false;
             Toolwindows.Close();
             base.Stop();
-
         }
 
         public override void Admin()
         {
-            Toolwindows.Visibility = Visibility.Visible;
+            if (Toolwindows_Visibility)
+            {
+                Toolwindows.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                MessageBox.Show("请先启用插件！");
+            }
         }
 
         private void hackGUI()
@@ -72,7 +82,6 @@ namespace SendDanmaku
             MainWindow mw = (MainWindow)Application.Current.MainWindow;
             ItemsControl log = (ItemsControl)mw.FindName("Log");
             TabItem tab = (TabItem)log.Parent;
-
             Grid grid = new Grid();
             RowDefinition c1 = new RowDefinition();
             c1.Height = new GridLength(1, GridUnitType.Star);
@@ -80,17 +89,12 @@ namespace SendDanmaku
             c2.Height = new GridLength(1, GridUnitType.Auto);
             grid.RowDefinitions.Add(c1);
             grid.RowDefinitions.Add(c2);
-
             bar = new SendToolbar();
             Grid.SetRow(bar, 1);
-
             tab.Content = grid;
             grid.Children.Add(log);
             var i = grid.Children.Add(bar);
-
         }
-
-        
 
         internal static void log(string text)
         {

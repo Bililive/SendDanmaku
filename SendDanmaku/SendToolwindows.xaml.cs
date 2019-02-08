@@ -31,6 +31,14 @@ namespace SendDanmaku
             InitializeComponent();
             list.Add(string.Empty);
         }
+        
+        private void Window_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
+        }
 
         /// <summary>
         /// 热键消息
@@ -86,8 +94,7 @@ namespace SendDanmaku
             F11 = 122,
             F12 = 123,
         }
-
-
+        
         /// <summary>
         /// 如果函数执行成功，返回值不为0。
         /// 如果函数执行失败，返回值为0。要得到扩展错误信息，调用GetLastError。
@@ -99,8 +106,7 @@ namespace SendDanmaku
         /// <returns></returns>
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint KeyModifiers, EKey vk);
-
-
+        
         /// <summary>
         /// 注册热键
         /// </summary>
@@ -176,8 +182,6 @@ namespace SendDanmaku
             }
             return IntPtr.Zero;
         }
-
-        
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {// 打开设置窗
@@ -255,6 +259,11 @@ namespace SendDanmaku
             {
                 if (input.Text.Contains("\n"))
                 {
+                    /*施工中。。。
+                    if (input.Text.Contains("set "))
+                    {
+                        if (input.Text.Contains("set opacity ")) { SendTool.Opacity = (double)input.Text.Remove(12); }
+                    }*/
                     help_Text.Text = "发送中。。。";
                     string text = input.Text.Replace("\r", string.Empty).Replace("\n", string.Empty);
                     input.Text = string.Empty;
