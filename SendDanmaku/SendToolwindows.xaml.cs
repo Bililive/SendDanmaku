@@ -31,8 +31,8 @@ namespace SendDanmaku
             InitializeComponent();
             list.Add(string.Empty);
         }
-        
-        private void Window_MouseMove(object sender, MouseEventArgs e)
+
+        private void Window_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
