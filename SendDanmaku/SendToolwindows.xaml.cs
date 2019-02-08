@@ -161,7 +161,7 @@ namespace SendDanmaku
         {
             if(msg == WM_HOTKEY)
                 {       
-                    if (wParam.ToInt32() == 37844)   //如果是注册的那个热键     
+                    if (wParam.ToInt32() == 37844)   //对比热键ID
                     {
                         if (SendDanmakuMain.Toolwindows.IsVisible)
                         {
@@ -188,7 +188,7 @@ namespace SendDanmaku
                     SendDanmakuMain.log("插件已经被允许使用B站账号！");
                     input.IsEnabled = true;
                     SendDanmakuMain.Toolwindows.GridA.Children.Remove(Button);
-                    help_Text.Text = "[回车键发送弹幕]按“Ctrl+Alt+W”隐藏/唤出发送窗";
+                    help_Text.Text = "[回车键发送弹幕] 按“Ctrl+Alt+W”隐藏/唤出发送窗";
                     break;
                 case AuthorizationResult.Failure:
                     SendDanmakuMain.log("授权失败，用户拒绝");
