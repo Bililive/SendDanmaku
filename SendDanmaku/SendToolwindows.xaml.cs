@@ -125,12 +125,12 @@ namespace SendDanmaku
                 }
                 else
                 {
-                    MessageBox.Show("注册热键失败！错误代码：" + errorCode);
+                    MessageBox.Show("热键注册失败！错误代码：" + errorCode);
                 }
             }
             else
             {
-                SendDanmakuMain.log("注册热键成功");
+                SendDanmakuMain.log("热键注册成功");
             }
         }
 
@@ -259,10 +259,31 @@ namespace SendDanmaku
             {
                 if (input.Text.Contains("\n"))
                 {
-                    /*施工中。。。
+                    /*
                     if (input.Text.Contains("set "))
                     {
-                        if (input.Text.Contains("set opacity ")) { SendTool.Opacity = (double)input.Text.Remove(12); }
+                        if (input.Text.Contains("set opacity "))
+                        {
+                            try
+                            {
+                                SendTool.Opacity = Convert.ToDouble(input.Text.Remove(12));
+                            }
+                            catch (Exception)
+                            {
+                                help_Text.Text = "错误的指令！";
+                            }
+                        }
+                        if (input.Text.Contains("set topmost "))
+                        {
+                            try
+                            {
+                                SendTool.Topmost = Convert.ToBoolean(input.Text.Remove(12));
+                            }
+                            catch (Exception)
+                            {
+                                help_Text.Text = "错误的指令！";
+                            }
+                        }
                     }*/
                     help_Text.Text = "发送中。。。";
                     string text = input.Text.Replace("\r", string.Empty).Replace("\n", string.Empty);

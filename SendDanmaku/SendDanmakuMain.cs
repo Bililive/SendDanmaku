@@ -39,7 +39,7 @@ namespace SendDanmaku
             {
                 api = new SafeAPI();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Log("需要安装“登录中心”才能使用");
                 return;
