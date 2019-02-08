@@ -11,7 +11,8 @@ namespace SendDanmaku
         internal static SendDanmakuMain self;
 
         internal static SafeAPI api = null;
-        internal static SendToolbar bar;
+        //internal static SendToolbar bar;
+        internal static SendToolwindows Toolwindows;
 
         public SendDanmakuMain()
         {
@@ -27,6 +28,7 @@ namespace SendDanmaku
             this.PluginVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
             VersionChecker.Check(this);
+            
         }
 
         public override void Inited()
@@ -68,13 +70,17 @@ namespace SendDanmaku
             grid.RowDefinitions.Add(c1);
             grid.RowDefinitions.Add(c2);
 
-            bar = new SendToolbar();
-            Grid.SetRow(bar, 1);
+            Toolwindows = new SendToolwindows();
+            Toolwindows.Show();
+            //bar = new SendToolbar();
+            //Grid.SetRow(bar, 1);
+            Grid.SetRow(Toolwindows, 1);
 
             tab.Content = grid;
 
             grid.Children.Add(log);
-            var i = grid.Children.Add(bar);
+            //var i = grid.Children.Add(Toolwindows);
+
         }
 
         internal static void log(string text)
