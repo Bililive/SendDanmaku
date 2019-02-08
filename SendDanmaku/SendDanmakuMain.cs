@@ -14,7 +14,6 @@ namespace SendDanmaku
         internal static SafeAPI api = null;
         internal static SendToolbar bar;
         internal static SendToolwindows Toolwindows;
-        public Boolean Toolwindows_Visibility = false;
 
         public SendDanmakuMain()
         {
@@ -30,7 +29,6 @@ namespace SendDanmaku
             this.PluginVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 
             VersionChecker.Check(this);
-            
         }
 
         public override void Inited()
@@ -46,35 +44,39 @@ namespace SendDanmaku
             }
 
             hackGUI();
+            Toolwindows = new SendToolwindows();
             Start();
         }
 
         public override void Start()
         {
-            Toolwindows = new SendToolwindows();
             Toolwindows.Show();
-            Toolwindows_Visibility = true;
             base.Start();
 
         }
 
         public override void Stop()
         {
-            Toolwindows_Visibility = false;
-            Toolwindows.Close();
+            Toolwindows.Hide();
             base.Stop();
+        }
+
+        public override void DeInit()
+        {
+            Toolwindows.Close();
         }
 
         public override void Admin()
         {
-            if (Toolwindows_Visibility)
+            try
             {
                 Toolwindows.Visibility = Visibility.Visible;
             }
-            else
+            catch (Exception)
             {
-                MessageBox.Show("请先启用插件！");
+                MessageBox.Show("发送弹幕窗口出现异常，请尝试重启弹幕姬！");
             }
+            
         }
 
         private void hackGUI()
