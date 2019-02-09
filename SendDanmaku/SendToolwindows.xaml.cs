@@ -32,7 +32,11 @@ namespace SendDanmaku
             InitializeComponent();
             list.Add(string.Empty);
         }
-
+        /// <summary>
+        /// 窗口拖动
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -42,6 +46,11 @@ namespace SendDanmaku
         }
 
         private bool AltDown = false;
+        /// <summary>
+        /// 防止Ait+F4关闭窗口
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
 
@@ -54,7 +63,11 @@ namespace SendDanmaku
                 e.Handled = true;
             }
         }
-
+        /// <summary>
+        /// 同上
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Window_PreviewKeyUp(object sender, KeyEventArgs e)
         {
             if (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt)
@@ -63,6 +76,9 @@ namespace SendDanmaku
             }
         }
 
+        /// <summary>
+        /// 读写配置文件
+        /// </summary>
         public static class WinAPI
         {
             [DllImport("kernel32")] // 写入配置文件的接口
@@ -87,8 +103,17 @@ namespace SendDanmaku
         /// 热键消息
         /// </summary>
         public const int WM_HOTKEY = 0x0312;
+        /// <summary>
+        /// 点击计数
+        /// </summary>
         public int ClickCount = 0;
+        /// <summary>
+        /// 开发者模式标识
+        /// </summary>
         public bool DeveloperMode = false;
+        /// <summary>
+        /// 插件文件目录
+        /// </summary>
         public string PluginPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\弹幕姬\plugins\发送弹幕\";
 
         /// <summary>
@@ -227,12 +252,22 @@ namespace SendDanmaku
         [DllImport("user32.dll")]
         public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
+        /// <summary>
+        /// 在窗口关闭时注销热键
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SendTool_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             //用来取消注册的热键
             UnregisterHotKey(new WindowInteropHelper(this).Handle, 37844);
         }
 
+        /// <summary>
+        /// 窗口加载完成事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SendTool_Loaded(object sender, RoutedEventArgs e)
         {
             try
@@ -295,6 +330,10 @@ namespace SendDanmaku
             }
         }
 
+        /// <summary>
+        /// WPFWndProc支持
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
@@ -302,7 +341,15 @@ namespace SendDanmaku
             source.AddHook(WndProc);
         }
 
-        // 响应热键
+        /// <summary>
+        /// 监听热键事件
+        /// </summary>
+        /// <param name="hwnd">窗口句柄</param>
+        /// <param name="msg">消息</param>
+        /// <param name="wParam"></param>
+        /// <param name="lParam"></param>
+        /// <param name="handled">处理结果</param>
+        /// <returns></returns>
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             if (msg == WM_HOTKEY)
@@ -323,8 +370,13 @@ namespace SendDanmaku
             return IntPtr.Zero;
         }
 
+        /// <summary>
+        /// 申请授权
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void Button_Click(object sender, RoutedEventArgs e)
-        {// 打开设置窗
+        {
             var result = await SendDanmakuMain.api.doAuth(SendDanmakuMain.self);
             switch (result)
             {
@@ -353,6 +405,11 @@ namespace SendDanmaku
             }
         }
 
+        /// <summary>
+        /// 开发者模式入口
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!DeveloperMode)
@@ -389,7 +446,11 @@ namespace SendDanmaku
             return;
         }
 
-
+        /// <summary>
+        /// 文本框记录查找
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void input_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Up)
@@ -430,7 +491,11 @@ namespace SendDanmaku
             list.Add(text);
         }
 
-
+        /// <summary>
+        /// 开发者模式主程序
+        /// </summary>
+        /// <param name="data">指令和参数</param>
+        /// <returns></returns>
         private int DeveloperModeSet(string[] data)
         {
             if (data[1] == "opacity")
@@ -491,6 +556,11 @@ namespace SendDanmaku
             }
         }
 
+        /// <summary>
+        /// 用户输入监听
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void input_TextChanged(object sender, TextChangedEventArgs e)
         {
             try

@@ -23,7 +23,7 @@ namespace SendDanmaku
                 throw new InvalidOperationException();
 
             this.PluginName = "弹幕发送";
-            this.PluginDesc = "在弹幕姬中快速发送弹幕";
+            this.PluginDesc = "[删除线]在弹幕姬中[/删除线]快速发送弹幕";
             this.PluginAuth = "宅急送队长";
             this.PluginCont = "私信15253直播间主播或弹幕姬群内私聊";
             this.PluginVer = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
