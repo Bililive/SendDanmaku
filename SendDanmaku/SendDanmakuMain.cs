@@ -45,19 +45,33 @@ namespace SendDanmaku
 
             hackGUI();
             Toolwindows = new SendToolwindows();
-            Start();
+            Toolwindows.Hide();
         }
 
         public override void Start()
         {
-            Toolwindows.Show();
+            try
+            {
+                Toolwindows.Show();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("发送弹幕窗口出现异常，请尝试重启弹幕姬！");
+            }
             base.Start();
 
         }
 
         public override void Stop()
         {
-            Toolwindows.Hide();
+            try
+            {
+                Toolwindows.Hide();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("发送弹幕窗口出现异常，请尝试重启弹幕姬！");
+            }
             base.Stop();
         }
 
