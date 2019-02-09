@@ -18,6 +18,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Messaging;
+using System.Text.RegularExpressions;
 
 namespace SendDanmaku
 {
@@ -40,10 +41,37 @@ namespace SendDanmaku
             }
         }
 
+        public static class WinAPI
+        {
+            [DllImport("kernel32")] // 写入配置文件的接口
+            private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
+            [DllImport("kernel32")] // 读取配置文件的接口
+            private static extern int GetPrivateProfileString(string section, string key, string def, StringBuilder retVal, int size, string filePath);
+            // 向配置文件写入值
+            public static void ProfileWriteValue(string section, string key, string value, string path)
+            {
+                WritePrivateProfileString(section, key, value, path);
+            }
+            // 读取配置文件的值
+            public static string ProfileReadValue(string section, string key, string path)
+            {
+                StringBuilder sb = new StringBuilder(255);
+                GetPrivateProfileString(section, key, "", sb, 255, path);
+                return sb.ToString().Trim();
+            }
+        }
+
+
+
+
+
         /// <summary>
         /// 热键消息
         /// </summary>
         public const int WM_HOTKEY = 0x0312;
+        public int ClickCount = 0;
+        public bool DeveloperMode = false;
+        public string PluginPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\弹幕姬\plugins\发送弹幕\";
 
         /// <summary>
         /// 自定义按键枚举
@@ -94,19 +122,30 @@ namespace SendDanmaku
             F11 = 122,
             F12 = 123,
         }
-        
+
         /// <summary>
         /// 如果函数执行成功，返回值不为0。
         /// 如果函数执行失败，返回值为0。要得到扩展错误信息，调用GetLastError。
         /// </summary>
         /// <param name="hWnd">要定义热键的窗口的句柄</param>
         /// <param name="id">定义热键ID（不能与其它ID重复）</param>
-        /// <param name="fsModifiers">标识热键是否在按Alt、Ctrl、Shift、Windows等键时才会生效</param>
+        /// <param name="fsModifiers">标识热键是否在按Alt、Ctrl、Shift、Windows等键时才会生效。Alt的值为1，Ctrl的值为2，Ctrl+Alt的值为3、Shift的值为4，Shift+Alt组合键为5，Shift+Alt+Ctrl组合键为7，Windows键的值为8</param>
         /// <param name="vk">定义热键的内容</param>
         /// <returns></returns>
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint KeyModifiers, EKey vk);
-        
+        /// <summary>
+        /// 如果函数执行成功，返回值不为0。
+        /// 如果函数执行失败，返回值为0。要得到扩展错误信息，调用GetLastError。
+        /// </summary>
+        /// <param name="hWnd">要定义热键的窗口的句柄</param>
+        /// <param name="id">定义热键ID（不能与其它ID重复）</param>
+        /// <param name="fsModifiers">标识热键是否在按Alt、Ctrl、Shift、Windows等键时才会生效。Alt的值为1，Ctrl的值为2，Ctrl+Alt的值为3、Shift的值为4，Shift+Alt组合键为5，Shift+Alt+Ctrl组合键为7，Windows键的值为8</param>
+        /// <param name="vk">定义热键的内容</param>
+        /// <returns></returns>
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint KeyModifiers, int key);
+
         /// <summary>
         /// 注册热键
         /// </summary>
@@ -115,6 +154,32 @@ namespace SendDanmaku
         /// <param name="keyModifiers">组合键</param>
         /// <param name="key">热键</param>
         public static void RegHotKey(IntPtr hwnd, int hotKeyId, uint KeyModifiers, EKey key)
+        {
+            if (!RegisterHotKey(hwnd, hotKeyId, KeyModifiers, key))
+            {
+                int errorCode = Marshal.GetLastWin32Error();
+                if (errorCode == 1409)
+                {
+                    MessageBox.Show("热键被占用 ！");
+                }
+                else
+                {
+                    MessageBox.Show("热键注册失败！错误代码：" + errorCode);
+                }
+            }
+            else
+            {
+                SendDanmakuMain.log("热键注册成功");
+            }
+        }
+        /// <summary>
+        /// 注册热键
+        /// </summary>
+        /// <param name="hwnd">窗口句柄</param>
+        /// <param name="hotKey_id">热键ID</param>
+        /// <param name="keyModifiers">组合键</param>
+        /// <param name="key">热键</param>
+        public static void RegHotKey(IntPtr hwnd, int hotKeyId, uint KeyModifiers, int key)
         {
             if (!RegisterHotKey(hwnd, hotKeyId, KeyModifiers, key))
             {
@@ -152,7 +217,66 @@ namespace SendDanmaku
         private void SendTool_Loaded(object sender, RoutedEventArgs e)
         {
             //注册热键c+a+W，这里的37844就是一个ID识别
-            RegHotKey(new WindowInteropHelper(this).Handle, 37844, 3, EKey.W);
+
+
+            try
+            {
+                DeveloperMode = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "DeveloperMode", PluginPath + "Config.ini"));
+                SendTool.Opacity = Convert.ToDouble(WinAPI.ProfileReadValue("SendDanmaku", "Opacity", PluginPath + "Config.ini"));
+                SendTool.Topmost = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "Topmost", PluginPath + "Config.ini"));
+                string[] sArray = Regex.Split(WinAPI.ProfileReadValue("SendDanmaku", "hotkey", PluginPath + "Config.ini"), " ", RegexOptions.IgnoreCase);
+                RegHotKey(new WindowInteropHelper(this).Handle, 37844, Convert.ToUInt16(sArray[0]), Convert.ToUInt16(sArray[1]));
+            }
+            catch (Exception)
+            {
+                //配置文件不存在
+                try
+                {
+                    if (false == System.IO.Directory.Exists(PluginPath))
+                    {
+                        //创建文件夹
+                        Directory.CreateDirectory(PluginPath);
+
+                        //创建配置文件
+                        StreamWriter t = new StreamWriter(PluginPath + "Config.ini", false, System.Text.Encoding.ASCII);
+                        t.Close();
+                    }
+                    else
+                    {
+                        //创建配置文件
+                        StreamWriter t = new StreamWriter(PluginPath + "Config.ini", false, System.Text.Encoding.ASCII);
+                        t.Close();
+                    }
+
+                    try
+                    {
+                        WinAPI.ProfileWriteValue("SendDanmaku", "DeveloperMode", DeveloperMode.ToString(), PluginPath + "Config.ini");
+                        WinAPI.ProfileWriteValue("SendDanmaku", "Opacity", SendTool.Opacity.ToString(), PluginPath + "Config.ini");
+                        WinAPI.ProfileWriteValue("SendDanmaku", "Topmost", SendTool.Topmost.ToString(), PluginPath + "Config.ini");
+                        WinAPI.ProfileWriteValue("SendDanmaku", "hotkey", 3 + " " + 87, PluginPath + "Config.ini");
+                        //开始插件初始化
+
+                        SendTool.Opacity = Convert.ToDouble(WinAPI.ProfileReadValue("SendDanmaku", "Opacity", PluginPath + "Config.ini"));
+                        SendDanmakuMain.log("已调整透明度为" + SendTool.Opacity.ToString());
+                        SendTool.Topmost = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "Topmost", PluginPath + "Config.ini"));
+                        SendDanmakuMain.log("已调整窗口置顶为" + SendTool.Topmost.ToString());
+                        string[] sArray = Regex.Split(WinAPI.ProfileReadValue("SendDanmaku", "hotkey", PluginPath + "Config.ini"), " ", RegexOptions.IgnoreCase);
+                        RegHotKey(new WindowInteropHelper(this).Handle, 37844, Convert.ToUInt16(sArray[0]), Convert.ToUInt16(sArray[1]));
+                        SendDanmakuMain.log("已调整热键为 " + sArray[0] + " " + sArray[1]);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("配置文件写入失败，请检查！\n" + ex.ToString(), "开发者模式", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("配置文件创建失败，请检查！\n" + ex.ToString(), "开发者模式", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+            }
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -163,22 +287,22 @@ namespace SendDanmaku
         }
 
         // 响应热键
-        private IntPtr WndProc(IntPtr hwnd,int msg,IntPtr wParam,IntPtr lParam, ref bool handled)
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
-            if(msg == WM_HOTKEY)
-                {       
-                    if (wParam.ToInt32() == 37844)   //对比热键ID
+            if (msg == WM_HOTKEY)
+            {
+                if (wParam.ToInt32() == 37844)   //对比热键ID
+                {
+                    if (SendDanmakuMain.Toolwindows.IsVisible)
                     {
-                        if (SendDanmakuMain.Toolwindows.IsVisible)
-                        {
-                            SendDanmakuMain.Toolwindows.Visibility= Visibility.Hidden;
-                        }
-                        else
-                        {
-                            SendDanmakuMain.Toolwindows.Visibility = Visibility.Visible;
-                        }
+                        SendDanmakuMain.Toolwindows.Visibility = Visibility.Hidden;
                     }
-                    handled = true;
+                    else
+                    {
+                        SendDanmakuMain.Toolwindows.Visibility = Visibility.Visible;
+                    }
+                }
+                handled = true;
             }
             return IntPtr.Zero;
         }
@@ -212,6 +336,44 @@ namespace SendDanmaku
                     break;
             }
         }
+
+        private void TextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!DeveloperMode)
+            {
+                ClickCount++;
+                if (ClickCount == 5)
+                {
+                    DeveloperMode = true;
+                    try
+                    {
+                        WinAPI.ProfileWriteValue("SendDanmaku", "DeveloperMode", DeveloperMode.ToString(), PluginPath + "Config.ini");
+                        //开启开发者模式
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("配置文件写入失败，请检查！\n" + ex.ToString(), "开发者模式", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                else if (ClickCount < 5)
+                {
+                    SendDanmakuMain.log("再点击 " + (5 - ClickCount) + " 次将会进入开发者模式");
+                    help_Text.Text = "再点击 " + (5 - ClickCount) + " 次将会进入开发者模式";
+                    return;
+                }
+                else if (ClickCount > 5)
+                {
+                    SendDanmakuMain.log("您已进入开发者模式！");
+                    help_Text.Text = "您已进入开发者模式！";
+                    return;
+                }
+            }
+            SendDanmakuMain.log("您已经在开发者模式下了！");
+            help_Text.Text = "您已经在开发者模式下了！";
+            return;
+        }
+
 
         private void input_KeyUp(object sender, KeyEventArgs e)
         {
@@ -253,38 +415,90 @@ namespace SendDanmaku
             list.Add(text);
         }
 
+
+        private int DeveloperModeSet(string[] data)
+        {
+
+            if (data[1] == "opacity")
+            {
+                try
+                {
+                    SendTool.Opacity = Convert.ToDouble(data[2]);
+                    SendDanmakuMain.log("已调整透明度为" + SendTool.Opacity);
+                    help_Text.Text = "已调整透明度为" + SendTool.Opacity;
+                    WinAPI.ProfileWriteValue("SendDanmaku", "Opacity", SendTool.Opacity.ToString(), PluginPath + "Config.ini");
+
+                    return 0;
+                }
+                catch (Exception)
+                {
+                    help_Text.Text = "错误的指令或数值！";
+                    return 1;
+                }
+            }
+            else if (data[1] == "topmost")
+            {
+                try
+                {
+                    SendTool.Topmost = Convert.ToBoolean(data[2]);
+                    SendDanmakuMain.log("已调整窗口置顶为" + SendTool.Topmost.ToString());
+                    help_Text.Text = "已调整窗口置顶为" + SendTool.Topmost.ToString();
+                    WinAPI.ProfileWriteValue("SendDanmaku", "Topmost", SendTool.Topmost.ToString(), PluginPath + "Config.ini");
+                    return 0;
+                }
+                catch (Exception)
+                {
+                    help_Text.Text = "错误的指令或数值！";
+                    return 1;
+                }
+            }
+            else if (data[1] == "hotkey")
+            {
+                try
+                {
+                    //MessageBox.Show("Alt的值为1，Ctrl的值为2，Ctrl + Alt的值为3、Shift的值为4，Shift + Alt组合键为5，Shift + Alt + Ctrl组合键为7，Windows键的值为8 \n Space = 32,Left = 37,Up = 38,Right = 39,Down = 40,A = 65,B = 66,C = 67,D = 68,E = 69,F = 70,G = 71,H = 72,I = 73,J = 74,K = 75,L = 76,M = 77,N = 78,O = 79,P = 80,Q = 81,R = 82,S = 83,T = 84,U = 85,V = 86,W = 87,X = 88,Y = 89,Z = 90,F1 = 112,F2 = 113,F3 = 114,F4 = 115,F5 = 116,F6 = 117,F7 = 118,F8 = 119,F9 = 120,F10 = 121,F11 = 122,F12 = 123,", "开发者模式", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                    //注销热键
+                    UnregisterHotKey(new WindowInteropHelper(this).Handle, 37844);
+                    //注册热键
+                    RegHotKey(new WindowInteropHelper(this).Handle, 37844, Convert.ToUInt16(data[2]), Convert.ToUInt16(data[3]));
+
+                    SendDanmakuMain.log("已调整热键为" + data[2] + data[3]);
+                    help_Text.Text = "已调整热键为" + data[2] + data[3];
+                    WinAPI.ProfileWriteValue("SendDanmaku", "hotkey", data[2] + " " + data[3], PluginPath + "Config.ini");
+                    return 0;
+                }
+                catch (Exception)
+                {
+                    help_Text.Text = "错误的指令或数值！";
+                    return 1;
+                }
+            }
+            else
+            {
+                help_Text.Text = "无效指令！";
+                return 1;
+            }
+
+
+        }
+
         private async void input_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
                 if (input.Text.Contains("\n"))
                 {
-                    /*
-                    if (input.Text.Contains("set "))
+
+                    if (DeveloperMode)
                     {
-                        if (input.Text.Contains("set opacity "))
+                        string[] sArray = Regex.Split(input.Text, " ", RegexOptions.IgnoreCase);
+
+                        if (sArray[0] == "set")
                         {
-                            try
-                            {
-                                SendTool.Opacity = Convert.ToDouble(input.Text.Remove(12));
-                            }
-                            catch (Exception)
-                            {
-                                help_Text.Text = "错误的指令！";
-                            }
+                            DeveloperModeSet(sArray);
+                            return;
                         }
-                        if (input.Text.Contains("set topmost "))
-                        {
-                            try
-                            {
-                                SendTool.Topmost = Convert.ToBoolean(input.Text.Remove(12));
-                            }
-                            catch (Exception)
-                            {
-                                help_Text.Text = "错误的指令！";
-                            }
-                        }
-                    }*/
+                    }
                     help_Text.Text = "发送中。。。";
                     string text = input.Text.Replace("\r", string.Empty).Replace("\n", string.Empty);
                     input.Text = string.Empty;
@@ -428,5 +642,7 @@ namespace SendDanmaku
             string formdata = string.Join("&", parameters.Select(p => $"{p.Key}={p.Value}"));
             return await HttpPostAsync(url, formdata, timeout, userAgent, cookie, headers);
         }
+
+
     }
 }

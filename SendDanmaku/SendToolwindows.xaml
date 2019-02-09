@@ -18,7 +18,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Border  Grid.Column="0" BorderBrush="{x:Null}" Height="Auto">
-                <TextBlock FontSize="18" VerticalAlignment="Center">发送弹幕：</TextBlock>
+                <TextBlock FontSize="18" VerticalAlignment="Center" MouseLeftButtonDown="TextBlock_MouseLeftButtonDown">发送弹幕：</TextBlock>
             </Border>
             <Border Grid.Column="1"  BorderBrush="{x:Null}" Height="Auto">
                 <TextBox Height="22" VerticalAlignment="Center" x:Name="input" AcceptsReturn="True" TextChanged="input_TextChanged" KeyUp="input_KeyUp" IsEnabled="False" FontSize="14"/>
