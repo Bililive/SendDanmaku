@@ -56,7 +56,9 @@ namespace SendDanmaku
             }
             catch (Exception)
             {
-                MessageBox.Show("发送弹幕窗口出现异常，请尝试重启弹幕姬！");
+                MessageBox.Show("发送弹幕窗口出现异常，请尝试重启弹幕姬！", this.PluginName, MessageBoxButton.OK, MessageBoxImage.Error);
+                base.Stop();
+                return;
             }
             base.Start();
 
@@ -70,7 +72,9 @@ namespace SendDanmaku
             }
             catch (Exception)
             {
-                MessageBox.Show("发送弹幕窗口出现异常，请尝试重启弹幕姬！");
+                MessageBox.Show("发送弹幕窗口出现异常，请尝试重启弹幕姬！", this.PluginName, MessageBoxButton.OK, MessageBoxImage.Error);
+                base.Stop();
+                return;
             }
             base.Stop();
         }
@@ -88,7 +92,9 @@ namespace SendDanmaku
             }
             catch (Exception)
             {
-                MessageBox.Show("发送弹幕窗口出现异常，请尝试重启弹幕姬！");
+                MessageBox.Show("发送弹幕窗口出现异常，请尝试重启弹幕姬！", this.PluginName, MessageBoxButton.OK, MessageBoxImage.Error);
+                base.Stop();
+                return;
             }
             
         }
