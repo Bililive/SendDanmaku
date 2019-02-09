@@ -216,9 +216,6 @@ namespace SendDanmaku
 
         private void SendTool_Loaded(object sender, RoutedEventArgs e)
         {
-            //注册热键c+a+W，这里的37844就是一个ID识别
-
-
             try
             {
                 DeveloperMode = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "DeveloperMode", PluginPath + "Config.ini"));
@@ -255,7 +252,7 @@ namespace SendDanmaku
                         WinAPI.ProfileWriteValue("SendDanmaku", "Topmost", SendTool.Topmost.ToString(), PluginPath + "Config.ini");
                         WinAPI.ProfileWriteValue("SendDanmaku", "hotkey", 3 + " " + 87, PluginPath + "Config.ini");
                         //开始插件初始化
-
+                        DeveloperMode = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "DeveloperMode", PluginPath + "Config.ini"));
                         SendTool.Opacity = Convert.ToDouble(WinAPI.ProfileReadValue("SendDanmaku", "Opacity", PluginPath + "Config.ini"));
                         SendDanmakuMain.log("已调整透明度为" + SendTool.Opacity.ToString());
                         SendTool.Topmost = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "Topmost", PluginPath + "Config.ini"));
@@ -316,7 +313,7 @@ namespace SendDanmaku
                     SendDanmakuMain.log("插件已经被允许使用B站账号！");
                     input.IsEnabled = true;
                     SendDanmakuMain.Toolwindows.GridA.Children.Remove(Button);
-                    help_Text.Text = "[回车键发送弹幕] 按“Ctrl+Alt+W”隐藏/唤出发送窗";
+                    if (!DeveloperMode) { help_Text.Text = "[回车键发送弹幕] 按“Ctrl+Alt+W”隐藏/唤出发送窗"; } else { help_Text.Text = "[回车键发送弹幕] 请使用您自定义的键位隐藏/唤出发送窗"; }
                     break;
                 case AuthorizationResult.Failure:
                     SendDanmakuMain.log("授权失败，用户拒绝");
@@ -344,11 +341,12 @@ namespace SendDanmaku
                 ClickCount++;
                 if (ClickCount == 5)
                 {
+                    ClickCount = 0;
                     DeveloperMode = true;
                     try
                     {
                         WinAPI.ProfileWriteValue("SendDanmaku", "DeveloperMode", DeveloperMode.ToString(), PluginPath + "Config.ini");
-                        //开启开发者模式
+                        MessageBox.Show("\n辅助键：\nAlt=1\nCtrl=2\nCtrl+Alt=3\nShift=4\nShift+Alt=5\nShift+Alt+Ctrl=7\nWindows键=8\n\n主键：\nSpace=32\nLeft=37\nUp=38\nRight=39\nDown=40\nA=65\nB=66\nC=67\nD=68\nE=69\nF=70\nG=71\nH=72\nI=73\nJ=74\nK=75\nL=76\nM=77\nN=78\nO=79\nP=80\nQ=81\nR=82\nS=83\nT=84\nU=85\nV=86\nW=87\nX=88\nY=89\nZ=90\nF1=112\nF2=113\nF3=114\nF4=115\nF5=116\nF6=117\nF7=118\nF8=119\nF9=120\nF10=121\nF11=122\nF12=123\n", "开发者模式", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                     }
                     catch (Exception ex)
                     {
@@ -369,8 +367,6 @@ namespace SendDanmaku
                     return;
                 }
             }
-            SendDanmakuMain.log("您已经在开发者模式下了！");
-            help_Text.Text = "您已经在开发者模式下了！";
             return;
         }
 
@@ -456,14 +452,14 @@ namespace SendDanmaku
             {
                 try
                 {
-                    //MessageBox.Show("Alt的值为1，Ctrl的值为2，Ctrl + Alt的值为3、Shift的值为4，Shift + Alt组合键为5，Shift + Alt + Ctrl组合键为7，Windows键的值为8 \n Space = 32,Left = 37,Up = 38,Right = 39,Down = 40,A = 65,B = 66,C = 67,D = 68,E = 69,F = 70,G = 71,H = 72,I = 73,J = 74,K = 75,L = 76,M = 77,N = 78,O = 79,P = 80,Q = 81,R = 82,S = 83,T = 84,U = 85,V = 86,W = 87,X = 88,Y = 89,Z = 90,F1 = 112,F2 = 113,F3 = 114,F4 = 115,F5 = 116,F6 = 117,F7 = 118,F8 = 119,F9 = 120,F10 = 121,F11 = 122,F12 = 123,", "开发者模式", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                    
                     //注销热键
                     UnregisterHotKey(new WindowInteropHelper(this).Handle, 37844);
                     //注册热键
                     RegHotKey(new WindowInteropHelper(this).Handle, 37844, Convert.ToUInt16(data[2]), Convert.ToUInt16(data[3]));
 
                     SendDanmakuMain.log("已调整热键为" + data[2] + data[3]);
-                    help_Text.Text = "已调整热键为" + data[2] + data[3];
+                    MessageBox.Show("已调整热键为" + data[2] + data[3], "开发者模式", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                     WinAPI.ProfileWriteValue("SendDanmaku", "hotkey", data[2] + " " + data[3], PluginPath + "Config.ini");
                     return 0;
                 }
