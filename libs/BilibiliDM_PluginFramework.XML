@@ -263,6 +263,11 @@
             内部用, JSON数据版本号 通常应该是2
             </summary>
         </member>
+        <member name="P:BilibiliDM_PluginFramework.DanmakuModel.RawDataJToken">
+            <summary>
+            原始数据, 高级开发用, 如果需要用原始的JSON数据, 建议使用这个而不是用RawData
+            </summary>
+        </member>
         <member name="P:BilibiliDM_PluginFramework.GiftRank.UserName">
             <summary>
             用戶名
