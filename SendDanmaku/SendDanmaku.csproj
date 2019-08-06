@@ -21,7 +21,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\..\Documents\弹幕姬\Plugins\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -82,12 +82,19 @@
     <Compile Include="SendToolbar.xaml.cs">
       <DependentUpon>SendToolbar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SendToolwindows.xaml.cs">
+      <DependentUpon>SendToolwindows.xaml</DependentUpon>
+    </Compile>
     <Compile Include="VersionChecker.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="SendToolbar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SendToolwindows.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

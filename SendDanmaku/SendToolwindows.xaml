@@ -1,0 +1,43 @@
+﻿<Window x:Name="SendTool" x:Class="SendDanmaku.SendToolwindows"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SendDanmaku"
+        mc:Ignorable="d"
+        PreviewKeyDown="Window_PreviewKeyDown"
+        PreviewKeyUp="Window_PreviewKeyUp"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown_1"
+        Opacity="0.8"
+        Title="发送弹幕" Height="32" Width="768" Topmost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" WindowStartupLocation="CenterScreen" Closing="SendTool_Closing" Loaded="SendTool_Loaded" ShowInTaskbar="False" ResizeMode = "NoResize" WindowStyle="None" AllowsTransparency="True">
+    <Border Height="Auto" BorderBrush="Black" BorderThickness="1">
+        <Grid Margin="2" x:Name="GridA">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Border  Grid.Column="0" BorderBrush="{x:Null}" Height="Auto">
+                <TextBlock FontSize="18" VerticalAlignment="Center" MouseLeftButtonDown="TextBlock_MouseLeftButtonDown">发送弹幕：</TextBlock>
+            </Border>
+            <Border Grid.Column="1"  BorderBrush="{x:Null}" Height="Auto">
+                <TextBox Height="22" VerticalAlignment="Center" x:Name="input" AcceptsReturn="True" TextChanged="input_TextChanged" KeyUp="input_KeyUp" IsEnabled="False" FontSize="14" AutomationProperties.HelpText="请输入弹幕 DA☆ZE～" MaxLength="0" />
+            </Border>
+            <Border Grid.Column="2"  BorderBrush="{x:Null}" Height="Auto" Margin="3.2,0,3,0">
+                <TextBlock Margin="0,6,0.036,5.182" VerticalAlignment="Center">
+                    [ <TextBlock x:Name="text_count">0</TextBlock>/<TextBlock x:Name="text_count_max">0</TextBlock> ]
+                </TextBlock>
+            </Border>
+            <Button Grid.Column="3" Margin="0 1" Width="70" Click="Button_Click" x:Name="Button" Height="24">
+                <StackPanel>
+                    <TextBlock Text="申请授权" HorizontalAlignment="Center" x:Name="Button_Text"/>
+                </StackPanel>
+            </Button>
+            <Border Grid.Column="4"  BorderBrush="{x:Null}" Height="Auto">
+                <TextBlock FontSize="12" Text='此功能由"弹幕发送"插件提供' VerticalAlignment="Center" x:Name="help_Text" Margin="1,6,0.473,5.182"/>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
