@@ -280,7 +280,7 @@ namespace SendDanmaku
             }
             catch (Exception)
             {
-                //配置文件不存在
+                //配置文件读取失败或不存在
                 try
                 {
                     if (false == System.IO.Directory.Exists(PluginPath))
@@ -577,7 +577,7 @@ namespace SendDanmaku
                             return;
                         }
                     }
-                    help_Text.Text = "发送中。。。";
+                    help_Text.Text = "发送中...";
                     string text = input.Text.Replace("\r", string.Empty).Replace("\n", string.Empty);
                     input.Text = string.Empty;
                     history = 0;

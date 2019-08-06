@@ -9,7 +9,7 @@
         PreviewKeyUp="Window_PreviewKeyUp"
         MouseLeftButtonDown="Window_MouseLeftButtonDown_1"
         Opacity="0.8"
-        Title="发送弹幕" Height="32" Width="768" AllowsTransparency="True" WindowStyle="None" Topmost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" WindowStartupLocation="CenterScreen" Closing="SendTool_Closing" Loaded="SendTool_Loaded" ShowInTaskbar="False">
+        Title="发送弹幕" Height="32" Width="768" AllowsTransparency="True" WindowStyle="None" Topmost="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" WindowStartupLocation="CenterScreen" Closing="SendTool_Closing" Loaded="SendTool_Loaded" ShowInTaskbar="False" MinWidth="768" MinHeight="32">
     <Border Height="Auto" BorderBrush="Black" BorderThickness="1">
         <Grid Margin="2" x:Name="GridA">
             <Grid.ColumnDefinitions>
