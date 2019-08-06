@@ -118,7 +118,7 @@ namespace SendDanmaku
         /// <summary>
         /// 插件文件目录
         /// </summary>
-        public string PluginPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\弹幕姬\plugins\发送弹幕\";
+        public string PluginPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\弹幕姬\plugins\SendDanmaku\";
 
         /// <summary>
         /// 自定义按键枚举
@@ -267,6 +267,45 @@ namespace SendDanmaku
             UnregisterHotKey(new WindowInteropHelper(this).Handle, 37844);
         }
 
+        private bool Initialize() {
+            try
+            {
+                WinAPI.ProfileWriteValue("SendDanmaku", "DeveloperMode", DeveloperMode.ToString(), PluginPath + "Config.ini");
+                WinAPI.ProfileWriteValue("SendDanmaku", "Opacity", SendTool.Opacity.ToString(), PluginPath + "Config.ini");
+                WinAPI.ProfileWriteValue("SendDanmaku", "Topmost", SendTool.Topmost.ToString(), PluginPath + "Config.ini");
+                WinAPI.ProfileWriteValue("SendDanmaku", "Hotkey", 3 + " " + 87, PluginPath + "Config.ini");
+                WinAPI.ProfileWriteValue("SendDanmaku", "Size", 768 + " " + 32, PluginPath + "Config.ini");
+                WinAPI.ProfileWriteValue("SendDanmaku", "Countmax", "30", PluginPath + "Config.ini");
+                //开始插件初始化
+                DeveloperMode = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "DeveloperMode", PluginPath + "Config.ini"));
+
+                SendTool.Opacity = Convert.ToDouble(WinAPI.ProfileReadValue("SendDanmaku", "Opacity", PluginPath + "Config.ini"));
+                SendDanmakuMain.log("已调整透明度为" + SendTool.Opacity.ToString());
+
+                SendTool.Topmost = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "Topmost", PluginPath + "Config.ini"));
+                SendDanmakuMain.log("已调整窗口置顶为" + SendTool.Topmost.ToString());
+
+                string[] sArray = Regex.Split(WinAPI.ProfileReadValue("SendDanmaku", "Hotkey", PluginPath + "Config.ini"), " ", RegexOptions.IgnoreCase);
+                UnregisterHotKey(new WindowInteropHelper(this).Handle, 37844);
+                RegHotKey(new WindowInteropHelper(this).Handle, 37844, Convert.ToUInt16(sArray[0]), Convert.ToUInt16(sArray[1]));
+                SendDanmakuMain.log("已调整热键为 " + sArray[0] + " " + sArray[1]);
+
+                sArray = Regex.Split(WinAPI.ProfileReadValue("SendDanmaku", "Size", PluginPath + "Config.ini"), " ", RegexOptions.IgnoreCase);
+                SendTool.Width = Convert.ToDouble(sArray[0]);
+                SendTool.Height = Convert.ToDouble(sArray[1]);
+                SendDanmakuMain.log("已调整窗口大小为" + sArray[0] + "*" + sArray[1]);
+
+                text_count_max.Text = Convert.ToString(WinAPI.ProfileReadValue("SendDanmaku", "Countmax", PluginPath + "Config.ini"));
+                input.MaxLength = Convert.ToInt16(text_count_max.Text);
+                SendDanmakuMain.log("已设置弹幕字数上限为" + text_count_max.Text);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
+
         /// <summary>
         /// 窗口加载完成事件
         /// </summary>
@@ -284,7 +323,7 @@ namespace SendDanmaku
                 sArray = Regex.Split(WinAPI.ProfileReadValue("SendDanmaku", "Size", PluginPath + "Config.ini"), " ", RegexOptions.IgnoreCase);
                 SendTool.Width = Convert.ToDouble(sArray[0]);
                 SendTool.Height = Convert.ToDouble(sArray[1]);
-                text_count_max.Text = Convert.ToString(WinAPI.ProfileReadValue("SendDanmaku", "Danmucountmax", PluginPath + "Config.ini"));
+                text_count_max.Text = Convert.ToString(WinAPI.ProfileReadValue("SendDanmaku", "Countmax", PluginPath + "Config.ini"));
                 input.MaxLength = Convert.ToInt16(text_count_max.Text);
             }
             catch (Exception)
@@ -308,42 +347,15 @@ namespace SendDanmaku
                         t.Close();
                     }
 
-                    try
+                    if (Initialize())
                     {
-                        WinAPI.ProfileWriteValue("SendDanmaku", "DeveloperMode", DeveloperMode.ToString(), PluginPath + "Config.ini");
-                        WinAPI.ProfileWriteValue("SendDanmaku", "Opacity", SendTool.Opacity.ToString(), PluginPath + "Config.ini");
-                        WinAPI.ProfileWriteValue("SendDanmaku", "Topmost", SendTool.Topmost.ToString(), PluginPath + "Config.ini");
-                        WinAPI.ProfileWriteValue("SendDanmaku", "Hotkey", 3 + " " + 87, PluginPath + "Config.ini");
-                        WinAPI.ProfileWriteValue("SendDanmaku", "Size", 768 + " " + 32, PluginPath + "Config.ini");
-                        WinAPI.ProfileWriteValue("SendDanmaku", "Danmucountmax", "30", PluginPath + "Config.ini");
-                        //开始插件初始化
-                        DeveloperMode = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "DeveloperMode", PluginPath + "Config.ini"));
-
-                        SendTool.Opacity = Convert.ToDouble(WinAPI.ProfileReadValue("SendDanmaku", "Opacity", PluginPath + "Config.ini"));
-                        SendDanmakuMain.log("已调整透明度为" + SendTool.Opacity.ToString());
-
-                        SendTool.Topmost = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "Topmost", PluginPath + "Config.ini"));
-                        SendDanmakuMain.log("已调整窗口置顶为" + SendTool.Topmost.ToString());
-
-                        string[] sArray = Regex.Split(WinAPI.ProfileReadValue("SendDanmaku", "Hotkey", PluginPath + "Config.ini"), " ", RegexOptions.IgnoreCase);
-                        RegHotKey(new WindowInteropHelper(this).Handle, 37844, Convert.ToUInt16(sArray[0]), Convert.ToUInt16(sArray[1]));
-                        SendDanmakuMain.log("已调整热键为 " + sArray[0] + " " + sArray[1]);
-
-                        sArray = Regex.Split(WinAPI.ProfileReadValue("SendDanmaku", "Size", PluginPath + "Config.ini"), " ", RegexOptions.IgnoreCase);
-                        SendTool.Width = Convert.ToDouble(sArray[0]);
-                        SendTool.Height = Convert.ToDouble(sArray[1]);
-                        SendDanmakuMain.log("已调整窗口大小为" + sArray[0] +"*"+ sArray[1]);
-
-                        text_count_max.Text = Convert.ToString(WinAPI.ProfileReadValue("SendDanmaku", "Danmucountmax", PluginPath + "Config.ini"));
-                        input.MaxLength = Convert.ToInt16(text_count_max.Text);
-                        SendDanmakuMain.log("已设置弹幕字数上线为" + text_count_max.Text);
+                        SendDanmakuMain.log("初始化完成");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        MessageBox.Show("配置文件写入失败，请检查！\n" + ex.ToString(), "开发者模式", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("配置文件初始化完成失败，请检查！", "开发者模式", MessageBoxButton.OK, MessageBoxImage.Error);
                         return;
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -495,9 +507,14 @@ namespace SendDanmaku
                 if (history < 0)
                     history = 0;
                 if (history == 0)
+                {
                     input.Text = string.Empty;
+                }
                 else
+                {
                     input.Text = list[list.Count - history];
+                }
+                    
             }
         }
 
@@ -527,95 +544,152 @@ namespace SendDanmaku
         /// <returns></returns>
         private int DeveloperModeSet(string[] data)
         {
-            switch (data[1])
+            if (DeveloperMode)
             {
-                case "Opacity":
-                    try
-                    {
-                        SendTool.Opacity = Convert.ToDouble(data[2]);
-                        SendDanmakuMain.log("已调整透明度为" + SendTool.Opacity);
-                        WinAPI.ProfileWriteValue("SendDanmaku", "Opacity", SendTool.Opacity.ToString(), PluginPath + "Config.ini");
-                        return 0;
-                    }
-                    catch (Exception)
-                    {
-                        return 1;
-                    }
-                case "Topmost":
-                    try
-                    {
-                        SendTool.Topmost = Convert.ToBoolean(data[2]);
-                        SendDanmakuMain.log("已调整窗口置顶为" + SendTool.Topmost.ToString());
-                        WinAPI.ProfileWriteValue("SendDanmaku", "Topmost", SendTool.Topmost.ToString(), PluginPath + "Config.ini");
-                        return 0;
-                    }
-                    catch (Exception)
-                    {
-                        return 1;
-                    }
-                case "Hotkey":
-                    try
-                    {
-                        //注销热键
-                        UnregisterHotKey(new WindowInteropHelper(this).Handle, 37844);
-                        //注册热键
-                        RegHotKey(new WindowInteropHelper(this).Handle, 37844, Convert.ToUInt16(data[2]), Convert.ToUInt16(data[3]));
-                        SendDanmakuMain.log("已调整热键为" + data[2] + data[3]);
-                        MessageBox.Show("已调整热键为" + data[2] + data[3], "开发者模式", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                        WinAPI.ProfileWriteValue("SendDanmaku", "Hotkey", data[2] + " " + data[3], PluginPath + "Config.ini");
-                        return 0;
-                    }
-                    catch (Exception)
-                    {
-                        return 1;
-                    }
-                case "Size":
-                    try
-                    {
-                        SendTool.Width = Convert.ToDouble(data[2]);
-                        SendTool.Height = Convert.ToDouble(data[3]);
-                        SendDanmakuMain.log("已调整窗口大小为 " + data[2] +" * "+ data[3]);
-                        WinAPI.ProfileWriteValue("SendDanmaku", "Size", data[2] + " " + data[3], PluginPath + "Config.ini");
-                        return 0;
-                    }
-                    catch (Exception)
-                    {
-                        return 1;
-                    }
-                case "Danmucountmax":
-                    try
-                    {
-                        if (!(Convert.ToInt16(data[2]) <= 21))
+                switch (data[0].ToUpper())
+                {
+                    case "SET":
+                        switch (data[1].ToUpper())
                         {
-                            input.MaxLength = Convert.ToInt16(data[2]);
-                            text_count_max.Text = input.MaxLength.ToString();
-                            SendDanmakuMain.log("已弹幕字数上限为 " + data[2]);
-                            WinAPI.ProfileWriteValue("SendDanmaku", "Danmucountmax", data[2], PluginPath + "Config.ini");
-                            return 0;
-                        } else {
-                            switch (MessageBox.Show("注意，字数上限小于或等于21可能会导致您无法修改该数值。\n是否确认修改？", "开发者模式", MessageBoxButton.YesNo, MessageBoxImage.Asterisk))
-                            {
-                                case MessageBoxResult.Yes:
-                                    input.MaxLength = Convert.ToInt16(data[2]);
-                                    text_count_max.Text = input.MaxLength.ToString();
-                                    SendDanmakuMain.log("已弹幕字数上限为 " + data[2]);
-                                    WinAPI.ProfileWriteValue("SendDanmaku", "Danmucountmax", data[2], PluginPath + "Config.ini");
-                                    return 0;
-                                case MessageBoxResult.No:
+                            case "OPACITY":
+                                try
+                                {
+                                    SendTool.Opacity = Convert.ToDouble(data[2]);
+                                    SendDanmakuMain.log("已调整透明度为" + SendTool.Opacity);
+                                    WinAPI.ProfileWriteValue("SendDanmaku", "Opacity", SendTool.Opacity.ToString(), PluginPath + "Config.ini");
                                     break;
-                            }
+                                }
+                                catch (Exception)
+                                {
+                                    return 2;
+                                }
+                            case "TOPMOST":
+                                try
+                                {
+                                    SendTool.Topmost = Convert.ToBoolean(data[2]);
+                                    SendDanmakuMain.log("已调整窗口置顶为" + SendTool.Topmost.ToString());
+                                    WinAPI.ProfileWriteValue("SendDanmaku", "Topmost", SendTool.Topmost.ToString(), PluginPath + "Config.ini");
+                                    break;
+                                }
+                                catch (Exception)
+                                {
+                                    return 2;
+                                }
+                            case "HOTKEY":
+                                try
+                                {
+                                    //注销热键
+                                    UnregisterHotKey(new WindowInteropHelper(this).Handle, 37844);
+                                    //注册热键
+                                    RegHotKey(new WindowInteropHelper(this).Handle, 37844, Convert.ToUInt16(data[2]), Convert.ToUInt16(data[3]));
+                                    SendDanmakuMain.log("已调整热键为" + data[2] + data[3]);
+                                    MessageBox.Show("已调整热键为" + data[2] + data[3], "开发者模式", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                                    WinAPI.ProfileWriteValue("SendDanmaku", "Hotkey", data[2] + " " + data[3], PluginPath + "Config.ini");
+                                    break;
+                                }
+                                catch (Exception)
+                                {
+                                    return 2;
+                                }
+                            case "SIZE":
+                                try
+                                {
+                                    if ((Convert.ToDouble(data[2]) <= 300) || (Convert.ToDouble(data[3]) <= 30))
+                                    {
+                                        switch (MessageBox.Show("注意，如果你设置的窗口大小过小可能会影响正常使用。\n是否确认修改？", "开发者模式", MessageBoxButton.YesNo, MessageBoxImage.Asterisk))
+                                        {
+                                            case MessageBoxResult.Yes:
+                                                SendTool.Width = Convert.ToDouble(data[2]);
+                                                SendTool.Height = Convert.ToDouble(data[3]);
+                                                SendDanmakuMain.log("已调整窗口大小为 " + data[2] + " * " + data[3]);
+                                                WinAPI.ProfileWriteValue("SendDanmaku", "Size", data[2] + " " + data[3], PluginPath + "Config.ini");
+                                                break;
+                                            case MessageBoxResult.No:
+                                                return 1;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        SendTool.Width = Convert.ToDouble(data[2]);
+                                        SendTool.Height = Convert.ToDouble(data[3]);
+                                        SendDanmakuMain.log("已调整窗口大小为 " + data[2] + " * " + data[3]);
+                                        WinAPI.ProfileWriteValue("SendDanmaku", "Size", data[2] + " " + data[3], PluginPath + "Config.ini");
+                                        break;
+                                    }
+                                    return 2;
+                                }
+                                catch (Exception)
+                                {
+                                    return 2;
+                                }
+                            case "COUNTMAX":
+                                try
+                                {
+                                    if (!(Convert.ToInt16(data[2]) <= 20))
+                                    {
+                                        input.MaxLength = Convert.ToInt16(data[2]);
+                                        text_count_max.Text = input.MaxLength.ToString();
+                                        SendDanmakuMain.log("已弹幕字数上限为 " + data[2]);
+                                        WinAPI.ProfileWriteValue("SendDanmaku", "Countmax", data[2], PluginPath + "Config.ini");
+                                        break;
+                                    }
+                                    else if (Convert.ToInt16(data[2]) <= 10)
+                                    {
+                                        MessageBox.Show("注意，字数上限过低！", "开发者模式", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                                        return 1;
+                                    }
+                                    else
+                                    {
+                                        switch (MessageBox.Show("注意，字数上限小于或等于20可能会导致您无法修改该数值。\n是否确认修改？", "开发者模式", MessageBoxButton.YesNo, MessageBoxImage.Asterisk))
+                                        {
+                                            case MessageBoxResult.Yes:
+                                                input.MaxLength = Convert.ToInt16(data[2]);
+                                                text_count_max.Text = input.MaxLength.ToString();
+                                                SendDanmakuMain.log("已弹幕字数上限为 " + data[2]);
+                                                WinAPI.ProfileWriteValue("SendDanmaku", "Countmax", data[2], PluginPath + "Config.ini");
+                                                break;
+                                            case MessageBoxResult.No:
+                                                return 1;
+                                        }
+                                    }
+                                    break;
+                                }
+                                catch (Exception)
+                                {
+                                    return 2;
+                                }
+                            default:
+                                MessageBox.Show("没有这个指令！", "开发者模式", MessageBoxButton.OK, MessageBoxImage.Asterisk);
+                                return 1;
                         }
-                        return 0;
-                    }
-                    catch (Exception)
-                    {
+                        break;
+                    case "RESET":
+                    case "INITIALIZE":
+                        switch (MessageBox.Show("注意，该操作将会初始化配置文件。\n是否确认初始化？", "开发者模式", MessageBoxButton.YesNo, MessageBoxImage.Exclamation))
+                        {
+                            case MessageBoxResult.Yes:
+                                if (Initialize())
+                                {
+                                    SendDanmakuMain.log("初始化完成");
+                                    break;
+                                }
+                                else
+                                {
+                                    MessageBox.Show("配置文件初始化完成失败，请检查！", "开发者模式", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    return 2;
+                                }
+                            case MessageBoxResult.No:
+                                return 1;
+                        }
+                        break;
+                    default:
+                        MessageBox.Show("缺少参数！", "开发者模式", MessageBoxButton.OK, MessageBoxImage.Asterisk);
                         return 1;
-                    }
-                default:
-                    MessageBox.Show("没有这个指令！", "开发者模式", MessageBoxButton.OK, MessageBoxImage.Asterisk);
-                    break;
+                }
+                input.Text = string.Empty;
+                return 0;
             }
-            return 1;
+            return 3;
         }
 
         /// <summary>
@@ -627,117 +701,80 @@ namespace SendDanmaku
         {
             try
             {
-                if (input.Text.Contains("\n"))
+                if (input.Text != string.Empty)
                 {
-                    if (input.Text.Remove(1, input.Text.Length - 1) == "/") {
-                        if (DeveloperMode)
+                    if (input.Text.Substring(input.Text.Length - 1, 1) == "\n")
+                    {
+                        if (input.Text.Remove(1, input.Text.Length - 1) == "/")
                         {
                             string[] sArray = Regex.Split(input.Text.Remove(0, 1).Replace("\r", string.Empty).Replace("\n", string.Empty), " ", RegexOptions.IgnoreCase);
-                            switch (sArray[0])
+                            switch (DeveloperModeSet(sArray))
                             {
-                                case "set":
-                                    if (DeveloperModeSet(sArray) == 1)
-                                    {
-                                        help_Text.Text = "错误的指令或数值！";
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        help_Text.Text = "指令 " + sArray[1] + " 执行成功！";
-                                        add2List(input.Text);
-                                        return;
-                                    }
-                                case "reset":
-                                case "initialize":
-                                    switch (MessageBox.Show("注意，该操作将会初始化配置文件。\n是否确认初始化？", "开发者模式", MessageBoxButton.YesNo, MessageBoxImage.Asterisk))
-                                    {
-                                        case MessageBoxResult.Yes:
-                                            WinAPI.ProfileWriteValue("SendDanmaku", "DeveloperMode", DeveloperMode.ToString(), PluginPath + "Config.ini");
-                                            WinAPI.ProfileWriteValue("SendDanmaku", "Opacity", SendTool.Opacity.ToString(), PluginPath + "Config.ini");
-                                            WinAPI.ProfileWriteValue("SendDanmaku", "Topmost", SendTool.Topmost.ToString(), PluginPath + "Config.ini");
-                                            WinAPI.ProfileWriteValue("SendDanmaku", "Hotkey", 3 + " " + 87, PluginPath + "Config.ini");
-                                            WinAPI.ProfileWriteValue("SendDanmaku", "Size", 768 + " " + 32, PluginPath + "Config.ini");
-                                            WinAPI.ProfileWriteValue("SendDanmaku", "Danmucountmax", "30", PluginPath + "Config.ini");
-                                            //开始插件初始化
-                                            DeveloperMode = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "DeveloperMode", PluginPath + "Config.ini"));
-
-                                            SendTool.Opacity = Convert.ToDouble(WinAPI.ProfileReadValue("SendDanmaku", "Opacity", PluginPath + "Config.ini"));
-                                            SendDanmakuMain.log("已调整透明度为" + SendTool.Opacity.ToString());
-
-                                            SendTool.Topmost = Convert.ToBoolean(WinAPI.ProfileReadValue("SendDanmaku", "Topmost", PluginPath + "Config.ini"));
-                                            SendDanmakuMain.log("已调整窗口置顶为" + SendTool.Topmost.ToString());
-
-                                            sArray = Regex.Split(WinAPI.ProfileReadValue("SendDanmaku", "Hotkey", PluginPath + "Config.ini"), " ", RegexOptions.IgnoreCase);
-                                            UnregisterHotKey(new WindowInteropHelper(this).Handle, 37844);
-                                            RegHotKey(new WindowInteropHelper(this).Handle, 37844, Convert.ToUInt16(sArray[0]), Convert.ToUInt16(sArray[1]));
-                                            SendDanmakuMain.log("已调整热键为 " + sArray[0] + " " + sArray[1]);
-
-                                            sArray = Regex.Split(WinAPI.ProfileReadValue("SendDanmaku", "Size", PluginPath + "Config.ini"), " ", RegexOptions.IgnoreCase);
-                                            SendTool.Width = Convert.ToDouble(sArray[0]);
-                                            SendTool.Height = Convert.ToDouble(sArray[1]);
-                                            SendDanmakuMain.log("已调整窗口大小为" + sArray[0] + "*" + sArray[1]);
-
-                                            text_count_max.Text = Convert.ToString(WinAPI.ProfileReadValue("SendDanmaku", "Danmucountmax", PluginPath + "Config.ini"));
-                                            input.MaxLength = Convert.ToInt16(text_count_max.Text);
-                                            SendDanmakuMain.log("已设置弹幕字数上限为" + text_count_max.Text);
-                                            help_Text.Text = "初始化成功！";
-                                            break;
-                                        case MessageBoxResult.No:
-                                            break;
-                                    }
-                                    break;
-                                default:
-                                    help_Text.Text = "缺少参数！";
+                                case 0:
+                                    help_Text.Text = "指令 " + sArray[1] + " 执行成功！";
                                     return;
+                                case 1:
+                                    help_Text.Text = "指令 " + sArray[1] + " 的执行已被取消！";
+                                    return;
+                                case 2:
+                                    help_Text.Text = "指令 " + sArray[1] + " 的执行出现错误！";
+                                    return;
+                                case 3:
+                                    help_Text.Text = "指令 " + sArray[1] + " 的执行出现未知错误！";
+                                    return;
+                                default:
+                                    help_Text.Text = "指令 " + sArray[1] + " 的未能被识别！将作为弹幕进行发送。";
+                                    break;
                             }
-                            input.Text = string.Empty;
+                        }
+
+                        help_Text.Text = "发送中...";
+                        string text = input.Text.Replace("\r", string.Empty).Replace("\n", string.Empty);
+                        input.Text = string.Empty;
+                        history = 0;
+                        add2List(text);
+                        string result = null;
+                        try
+                        {
+                            if (SendDanmakuMain.self.RoomId.HasValue)
+                            {
+                                result = await SendDanmakuAsync(SendDanmakuMain.self.RoomId.Value, text, LoginCenterAPI.getCookies());
+                                //string.Join("; ", LoginCenterAPI.getCookies().GetCookies(new Uri("http://live.bilibili.com/")).OfType<Cookie>().Select(p => $"{p.Name}={p.Value}"))
+                                //result = await SendDanmakuMain.api.send(SendDanmakuMain.self.RoomId.Value, text);
+                            }
+                            else
+                            {
+                                SendDanmakuMain.log("还未连接直播间！");
+                                help_Text.Text = "还未连接至直播间！";
+                                return;
+                            }
+                        }
+                        catch (PluginNotAuthorizedException)
+                        {
+                            SendDanmakuMain.log("插件未被授权使用B站账号");
+                            help_Text.Text = "插件未被授权使用B站账号";
                             return;
                         }
-                    }
-                    help_Text.Text = "发送中...";
-                    string text = input.Text.Replace("\r", string.Empty).Replace("\n", string.Empty);
-                    input.Text = string.Empty;
-                    history = 0;
-                    add2List(text);
-                    string result = null;
-                    try
-                    {
-                        if (SendDanmakuMain.self.RoomId.HasValue)
+
+                        if (result == null)
                         {
-                            result = await SendDanmakuAsync(SendDanmakuMain.self.RoomId.Value, text, LoginCenterAPI.getCookies());
-                            //string.Join("; ", LoginCenterAPI.getCookies().GetCookies(new Uri("http://live.bilibili.com/")).OfType<Cookie>().Select(p => $"{p.Name}={p.Value}"))
-                            //result = await SendDanmakuMain.api.send(SendDanmakuMain.self.RoomId.Value, text);
+                            SendDanmakuMain.log("网络错误，请重试");
+                            help_Text.Text = "网络错误，请重试";
+                            return;
                         }
                         else
                         {
-                            SendDanmakuMain.log("还未连接直播间！");
-                            help_Text.Text = "还未连接至直播间！";
-                            return;
+                            var j = JObject.Parse(result);
+                            string msg = (j["msg"] ?? j["message"]).ToString();
+                            if (msg != string.Empty)
+                            {
+                                SendDanmakuMain.log("服务器返回：" + msg);
+                                help_Text.Text = "错误：" + msg;
+                                return;
+                            }
                         }
+                        help_Text.Text = "已发送！";
                     }
-                    catch (PluginNotAuthorizedException)
-                    {
-                        SendDanmakuMain.log("插件未被授权使用B站账号");
-                        help_Text.Text = "插件未被授权使用B站账号";
-                        return;
-                    }
-
-                    if (result == null)
-                    {
-                        SendDanmakuMain.log("网络错误，请重试");
-                        help_Text.Text = "网络错误，请重试";
-                    }
-                    else
-                    {
-                        var j = JObject.Parse(result);
-                        string msg = (j["msg"] ?? j["message"]).ToString();
-                        if (msg != string.Empty)
-                        {
-                            SendDanmakuMain.log("服务器返回：" + msg);
-                            help_Text.Text = "错误：" + msg;
-                        }
-                    }
-                    help_Text.Text = "已发送！";
                 }
             }
             finally
